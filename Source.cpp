@@ -450,7 +450,7 @@ GLvoid ReSizeGLScene(GLsizei width, GLsizei height)		// Resize And Initialize Th
 }
 
 
-
+bool opendoor=false;
 
 // aya's functions ----------------------------------------------------------------------------------------------------------------------------
 
@@ -691,7 +691,8 @@ void WallWithDoor(float x = 0, float y = 0, float z = 0) {
 	glPopMatrix();
 	//----------------------------------------------door----------------------------------------------------------------------
 	glPushMatrix();
-	glTranslatef(0+x, -4+y, 0+z);
+	if(opendoor==true) glTranslatef(0+x, -4+y, 8+z);
+	else glTranslatef(0+x, -4+y, 0+z);
 	glRotatef(90, 0, 1, 0);
 	glColor3ub(255, 255, 255);
 	glEnable(GL_TEXTURE_2D);
@@ -705,6 +706,7 @@ void WallWithDoor(float x = 0, float y = 0, float z = 0) {
 	glTexCoord2f(1.0f, 1.0f);
 	glVertex3f(-4, 6, +25);
 	glEnd();
+	
 	glDisable(GL_TEXTURE_2D);
 	glPopMatrix();
 	glPopMatrix();
@@ -1559,8 +1561,10 @@ float cosMovingVelocity = 0.1;
 
 int mouseX=0,mouseY=0;
 int move =-600;
-bool mover = true;
+bool mover = false;
 
+bool fan=true;
+double fanrotate=0.0;
 
 
 
@@ -2733,6 +2737,57 @@ void drawfood(double x,double y,double z,double a,double b, double c){
 
 
 
+void drawfan(double x,double y,double z){
+	glPushMatrix();
+	glTranslated(x,y,z);
+
+	glPushMatrix();
+	glRotatef(fanrotate,0,1,0);
+		glColor3f(255, 255, 255);
+	glBegin(GL_QUADS); 
+	glVertex3f(6,-1, -1);
+		glVertex3f(6, -1, 1);
+	glVertex3f(-6,-1, 1);
+	glVertex3f(-6,-1,-1);
+	glEnd();
+	glPopMatrix();
+
+	glPushMatrix();
+		glRotatef(fanrotate,0,1,0);
+	glColor3f(255, 255,255);
+	glBegin(GL_QUADS); 
+	glVertex3f(-1,-1, -6);
+		glVertex3f(1, -1, -6);
+	glVertex3f(1,-1,6);
+	glVertex3f(-1,-1, 6);
+	glEnd();
+	glPopMatrix();
+
+	glPushMatrix();
+	glColor3f(255, 255, 255);
+	glBegin(GL_QUADS); 
+	glVertex3f(-0.3,-1, 0);
+		glVertex3f(0.3, -1, 0);
+	glVertex3f(0.3,3, 0);
+	glVertex3f(-0.3,3,0);
+	glEnd();
+	glPopMatrix();
+
+	glPushMatrix();
+	glColor3f(255, 255, 255);
+	glBegin(GL_QUADS); 
+	glVertex3f(0,-1, -0.3);
+		glVertex3f(0, -1, 0.3);
+	glVertex3f(0,3, 0.3);
+	glVertex3f(0,3,-0.3);
+	glEnd();
+	glPopMatrix();
+
+
+	glPopMatrix();
+}
+
+
 //------------------------------------------------room object function----------------------------------------------------------------------
 
 
@@ -2758,6 +2813,7 @@ glTranslated(x,y,z);
 void classroom(double x,double y,double z){
 	glPushMatrix();
 glTranslated(x,y,z);
+drawfan(0,6.5,0);
 drawbord(0,-1,-10,3,1.5,1);
 drawimageclass1(15,2,-10,1,1,1);
 drawimageclass2(-15,2,-10,1.5,1.5,1);
@@ -2803,6 +2859,7 @@ drawTable(0,0,0,1,1,1);
 glPopMatrix();
 
 
+
 glPopMatrix();
 
 }
@@ -2810,6 +2867,7 @@ glPopMatrix();
 void foodroom(double x,double y,double z){
 	glPushMatrix();
 	glTranslated(x,y,z);
+	drawfan(0,6.5,0);
 	glPushMatrix();
 	drawTable(0,-4,-5,3,2,2);
 	glPopMatrix();
@@ -2844,6 +2902,7 @@ void drivingroom(double x,double y,double z){
 	drawcoal(-3,-8,-5,1,1,1);
 	glPopMatrix();
 }
+
 
 bool isClicked=0,isRClicked=0;
 
@@ -2886,41 +2945,46 @@ void DrawGLScene(GLvoid)									// Here's Where We Do All The Drawing
 	glRotated(90,0,1,0);
 	
 	glTranslated(move,-38,0);
+
 	if(mover) {
 		move++;
 	}
+	if(fan) {
+		fanrotate=fanrotate+8;
+	}
 
-
+	
+	
 	//first room
-	MainRoom(255,0,0,0,0,0,0);
-	drivingroom(255,0,0);
+	//MainRoom(255,0,0,0,0,0,0);
+	//drivingroom(255,0,0);
 	//last room
-	MainRoom(-315,0,0,180,0,1,0);
-	drivingroom(-315,0,0);
-	DrawEntrance(-140,0,0);
+	//MainRoom(-315,0,0,180,0,1,0);
+	//drivingroom(-315,0,0);
+	//DrawEntrance(-140,0,0);
     //second room
-	RoomWithWindow(210,0,0);
-	bedroom(210,0,0);
+	//RoomWithWindow(210,0,0);
+	///bedroom(210,0,0);
 	
 
 	//third room
-	RoomWithOneWindow(150,0,0);
-	classroom(150,0,0);
+	//RoomWithOneWindow(150,0,0);
+	//classroom(150,0,0);
 	//fourth room
-	RoomWithWindow(90,0,0);
-	foodroom(90,0,0);
+	//(90,0,0);
+	//foodroom(90,0,0);
 	//fifth room
-	RoomWithWindow(30,0,0);
+	//RoomWithWindow(30,0,0);
 	//sixth room
-	RoomWithWindow(-30,0,0);
+	//RoomWithWindow(-30,0,0);
 	//seventh room
-	RoomWithOutWindow(-90,0,0);
+	//RoomWithOutWindow(-90,0,0);
 	//eighth room
-	RoomWithWindow(-150,0,0);
+	//RoomWithWindow(-150,0,0);
 	//nineth room
-	RoomWithWindow(-210,0,0);
+	//RoomWithWindow(-210,0,0);
 	//tenth Room
-	RoomWithWindow(-270,0,0);
+	//RoomWithWindow(-270,0,0);
 
 
 	glPopMatrix();
@@ -2939,7 +3003,12 @@ void DrawGLScene(GLvoid)									// Here's Where We Do All The Drawing
 	if (keys['F']) {
 		mover = !mover;
 	}
-
+	if (keys['R']) {
+		fan = !fan;
+	}
+	if (keys['G']) {
+		opendoor = !opendoor;
+	}
 
 	if (keys[VK_UP]) {  if(xd>-size+10 && xd<size-10){zd += velocity*sin(angle1); xd += velocity*cos(angle1);
 	angle3 += cosMovingVelocity; } } // moving Forward. (changing yd axis to demonstrating the steps effect!) 
