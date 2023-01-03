@@ -15,6 +15,9 @@
 #include <camera.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <3DTexture.h>
+#include <math3d.h>
+#include <Model_3DS.h>
 
 
 HDC			hDC = NULL;		// Private GDI Device Context
@@ -30,7 +33,6 @@ LRESULT	CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);	// Declaration For WndProc
 
 int size =200;
 
-
 class skyBox{
 public : 
 	int ccX,ccY,ccZ;
@@ -40,7 +42,7 @@ public :
 	
 
 public :
-	skyBox(int cX,int cY,int cZ,int ymen,int ysar,int edam,int wra,int fo2,int t7t){
+	skyBox(int cX,int cY,int cZ,int ymen,int ysar,int edam,int wra,int fo2,int t7t,bool first,bool last){
 	ccX=cX;
 	ccY=cY;
 	ccZ=cZ;
@@ -52,7 +54,7 @@ public :
 
 
 
-
+	if(!first){
 	glBegin(GL_QUADS); //ysar
 	
 	
@@ -110,6 +112,25 @@ public :
 
 
 	glEnd();
+	}else{
+		glBegin(GL_QUADS); 
+	
+	
+	glTexCoord2f(0.0f,0.0f);
+	glVertex3f(-size+cX,-size+cY, size+cZ);
+	
+	glTexCoord2f(1.0f,0.0f);
+	glVertex3f(size+cX, -size+cY, size+cZ);
+	
+	glTexCoord2f(1.0f,1.0f);
+	glVertex3f(size+cX,size+cY, size+cZ);
+
+	glTexCoord2f(0.0f,1.0f);
+	glVertex3f(-size+cX,size+cY,size+cZ);
+
+	glEnd();
+
+	}
 
 
 
@@ -148,7 +169,7 @@ public :
 
 
 
-
+	if(!last){
 	glBegin(GL_QUADS); //ysar
 	
 	
@@ -206,7 +227,25 @@ public :
 
 
 	glEnd();
+	}else{
+		glBegin(GL_QUADS); //ysar
 
+		glTexCoord2f(1.0f,0.0f);
+		glVertex3f(-size+cX,-size+cY, -size+cZ);
+	
+		glTexCoord2f(0.0f,0.0f);
+		glVertex3f(size+cX, -size+cY, -size+cZ);
+	
+		glTexCoord2f(0.0f,1.0f);
+		glVertex3f(size+cX,size+cY, -size+cZ);
+
+		glTexCoord2f(1.0f,1.0f);
+		glVertex3f(-size+cX,size+cY,-size+cZ);
+	
+
+
+	glEnd();
+	}
 
 
 
@@ -284,17 +323,17 @@ public :
 	glBegin(GL_QUADS); 
 	
 	
-	glTexCoord2f(1.0f,1.0f);
+	glTexCoord2f(1.0f,0.0f);
 	glVertex3f(-size+cX, -size+cY, size+cZ);
 	
-	glTexCoord2f(0.0f,1.0f);
+	glTexCoord2f(0.0f,0.0f);
 	glVertex3f(size+cX, -size+cY, size+cZ);
 	
-	glTexCoord2f(0.0f,0.0f);
+	glTexCoord2f(0.0f,1.0f);
 	glVertex3f(size+cX,-size+cY, -size+cZ);
 	
 
-	glTexCoord2f(1.0f,0.0f);
+	glTexCoord2f(1.0f,1.0f);
 	glVertex3f(-size+cX,-size+cY,-size+cZ);
 	
 
@@ -450,12 +489,15 @@ GLvoid ReSizeGLScene(GLsizei width, GLsizei height)		// Resize And Initialize Th
 }
 
 
-bool opendoor=false;
+
+
+
 
 // aya's functions ----------------------------------------------------------------------------------------------------------------------------
 
 int wall, ground, wall2, wall3, door, wheel;
 
+bool opendoor=false;
 
 void drawWheel(float x = 0, float y = 0, float z = 0) {
 	//circle 2
@@ -633,7 +675,8 @@ void WallWithDoor(float x = 0, float y = 0, float z = 0) {
 	glPushMatrix();
 	//----------------------------------------------right1----------------------------------------------------------------------
 	glPushMatrix();
-	glTranslatef(0+x, 6+y, 0+z);
+	if(opendoor==true) glTranslatef(0+x, -4+y, 8+z);
+	else glTranslatef(0+x, -4+y, 0+z);
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, wall);
 	glBegin(GL_QUADS);
@@ -691,8 +734,7 @@ void WallWithDoor(float x = 0, float y = 0, float z = 0) {
 	glPopMatrix();
 	//----------------------------------------------door----------------------------------------------------------------------
 	glPushMatrix();
-	if(opendoor==true) glTranslatef(0+x, -4+y, 8+z);
-	else glTranslatef(0+x, -4+y, 0+z);
+	glTranslatef(0+x, -4+y, 0+z);
 	glRotatef(90, 0, 1, 0);
 	glColor3ub(255, 255, 255);
 	glEnable(GL_TEXTURE_2D);
@@ -706,7 +748,6 @@ void WallWithDoor(float x = 0, float y = 0, float z = 0) {
 	glTexCoord2f(1.0f, 1.0f);
 	glVertex3f(-4, 6, +25);
 	glEnd();
-	
 	glDisable(GL_TEXTURE_2D);
 	glPopMatrix();
 	glPopMatrix();
@@ -1271,6 +1312,8 @@ void RoomWithWindow(float x = 0, float y = 0, float z = 0) {
 	DrawEntrance(25,0,0);
 
 	glPopMatrix();
+	glColor3f(1,1,1);
+
 	
 }
 
@@ -1373,7 +1416,7 @@ void RoomWithOutWindow(float x = 0, float y = 0, float z = 0) {
     DrawEntrance(25,0,0);
 
 	glPopMatrix();
-	
+	glColor3f(1,1,1);
 }
 
 
@@ -1479,98 +1522,280 @@ int mountain2dam,mountainWra,mountainYmen,mountainYsar,mountainFo2,mountainT7t;
 
 int tunel1,roof,road2,rail;
 
-int comodena,comodena2,closet,closet2,bord,imagclass1,imagclass2,coal,monalisa,food;
+int forest2dam,forestWra,forestYmen,forestYsar,forestFo2,forestT7t;
 
+int night2dam,nightWra,nightYmen,nightYsar,nightFo2,nightT7t;
 
-int InitGL(GLvoid)										// All Setup For OpenGL Goes Here
-{
-	glShadeModel(GL_SMOOTH);							// Enable Smooth Shading
-	glClearColor(0.0f, 0.0f, 0.0f, 0.5f);				// Black Background
-	glClearDepth(1.0f);									// Depth Buffer Setup
-	glEnable(GL_DEPTH_TEST);							// Enables Depth Testing
-	glDepthFunc(GL_LEQUAL);								// The Type Of Depth Testing To Do
-	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	// Really Nice Perspective Calculations
-
+int desert2dam,desertWra,desertYmen,desertYsar,desertFo2,desertT7t;
 	
-	glEnable(GL_TEXTURE_2D);
-	image1 = LoadTexture("skyrender0001.bmp",255);
-	image2 = LoadTexture("skyrender0002.bmp",255);
-	image3 = LoadTexture("skyrender0003.bmp",255);
-	image4 = LoadTexture("skyrender0004.bmp",255);
-	image5 = LoadTexture("skyrender0005.bmp",255);
-	image6 = LoadTexture("skyrender0006.bmp",255);
-	grass = LoadTexture("grass.bmp",255);
+Model_3DS*bench;
+GLTexture chaitTex,chaitTex1;
 
-	snow2dam = LoadTexture("snow_ft.bmp",255);
-	snowWra = LoadTexture("snow_bk.bmp",255);
-	snowYmen = LoadTexture("snow_rt.bmp",255);
-	snowYsar = LoadTexture("snow_lf.bmp",255);
-	snowFo2 = LoadTexture("snow_up.bmp",255);
-	snowT7t = LoadTexture("snow_dn.bmp",255);
+Model_3DS*house;
+GLTexture houseTex1,houseTex2,houseTex3,houseTex4,houseTex5,houseTex6,houseTex7;
 
-	mountain2dam = LoadTexture("mountain-posz.bmp",255);
-	mountainWra = LoadTexture("mountain-negz.bmp",255);
-	mountainYmen = LoadTexture("mointain-negx.bmp",255);
-	mountainYsar = LoadTexture("mountain-posx.bmp",255);
-	mountainFo2 = LoadTexture("mountain-posy.bmp",255);
-	mountainT7t = LoadTexture("mountain-negy.bmp",255);
+Model_3DS*projector;
+GLTexture projectorTex;
 
-	tunel1 = LoadTexture("tunnel1.bmp",255);
-	roof = LoadTexture("roof.bmp",255);
-	road2 = LoadTexture("road2.bmp",255);
-	rail = LoadTexture("Rail.bmp",255);
+Model_3DS*armchair;
+GLTexture armChairTex1,armChairTex2,armChairTex3,armChairTex4;
 
-	wall = LoadTexture("Wall.bmp", 255);
-	ground = LoadTexture("iron.bmp", 255);
-	wall2 = LoadTexture("Wall2 (2).bmp", 255);
-	wall3 = LoadTexture("Wall3.bmp", 255);
-	door = LoadTexture("door.bmp", 255);
-	wheel = LoadTexture("wheel.bmp", 255);
-	
+Model_3DS*sofa;
+GLTexture sofaTex1,sofaTex2;
 
-	comodena = LoadTexture("comodena.bmp",255);
-	comodena2 = LoadTexture("comodena2.bmp",255);
-	closet = LoadTexture("closet.bmp",255);
-	closet2 = LoadTexture("closet2.bmp",255);
-	bord = LoadTexture("bord.bmp",255);
-	imagclass1= LoadTexture("imegclass1.bmp",255);
-	imagclass2= LoadTexture("imageclass2.bmp",255);
-	coal = LoadTexture("coal.bmp",255);
-	monalisa = LoadTexture("monalisa.bmp",255);
-	food = LoadTexture("food.bmp",255);
+Model_3DS*table;
+GLTexture tableTex;
+
+Model_3DS*bookCase;
+GLTexture bookCaseTex1,bookCaseTex2,bookCaseTex3;
+
+Model_3DS*chair;
+GLTexture chairTex1,chairTex2;
+
+Model_3DS*sofaChair;
+GLTexture sofaChairTex1,sofaChairTex2,sofaChairTex3;
+
+int bookcase,shelfWood;
 
 
 
-	
-	
 
-	
-	return TRUE;										// Initialization Went OK
+
+
+
+
+//anas,functions ---------------------------------------------------------------------------------------------------------------------------------
+
+void drawCinemaSeats(float x,float y,float z){
+glPushMatrix();
+glTranslatef(x,y,z);
+ glTranslated(0,-7.5,0);
+ glRotated(90,0,1,0);
+ armchair->Materials[0].tex=armChairTex2;
+ armchair->Materials[1].tex=armChairTex3;
+ armchair->Materials[2].tex=armChairTex1;
+ armchair->Materials[3].tex=armChairTex4;
+ armchair->Materials[4].tex=armChairTex1;
+ //2
+ armchair->pos.x=-5;
+ armchair->pos.y=0;
+ armchair->pos.z=0;
+
+ armchair->scale=0.05;
+ armchair->Draw();
+ //3
+ armchair->pos.x=+5;
+ armchair->pos.y=0;
+ armchair->pos.z=0;
+
+ armchair->scale=0.05;
+ armchair->Draw();
+ //secondRow
+ glTranslated(0,0,-5);
+ 
+ //2
+ armchair->pos.x=-5;
+ armchair->pos.y=0;
+ armchair->pos.z=0;
+
+ armchair->scale=0.05;
+ armchair->Draw();
+ //3
+ armchair->pos.x=+5;
+ armchair->pos.y=0;
+ armchair->pos.z=0;
+
+ armchair->scale=0.05;
+ armchair->Draw();
+ //thirdRow
+ glTranslated(0,0,10);
+ 
+
+ armchair->scale=0.05;
+ armchair->Draw();
+ //2
+ armchair->pos.x=-5;
+ armchair->pos.y=0;
+ armchair->pos.z=0;
+
+ armchair->scale=0.05;
+ armchair->Draw();
+ //3
+ armchair->pos.x=+5;
+ armchair->pos.y=0;
+ armchair->pos.z=0;
+
+ armchair->scale=0.05;
+ armchair->Draw();
+ //fourthRow
+ glTranslated(0,0,-15);
+ 
+ //2
+ armchair->pos.x=-5;
+ armchair->pos.y=0;
+ armchair->pos.z=0;
+
+ armchair->scale=0.05;
+ armchair->Draw();
+ //3
+ armchair->pos.x=+5;
+ armchair->pos.y=0;
+ armchair->pos.z=0;
+
+ armchair->scale=0.05;
+ armchair->Draw();
+ //fifthRow
+ glTranslated(0,0,-5);
+ 
+ //2
+ armchair->pos.x=-5;
+ armchair->pos.y=0;
+ armchair->pos.z=0;
+
+ armchair->scale=0.05;
+ armchair->Draw();
+ //3
+ armchair->pos.x=+5;
+ armchair->pos.y=0;
+ armchair->pos.z=0;
+
+ armchair->scale=0.05;
+ armchair->Draw();
+
+ 
+ glPopMatrix();
+
 }
+void CINEMA(float x=0,float y=0,float z=0){
+
+//screen
+ glPushMatrix();
+ glTranslatef(x,y,z);
+ glTranslated(0,0,-24.5);
+ glPopMatrix();
+ //projector
+ glPushMatrix();
+ glTranslatef(x,y,z);
+ glTranslated(0,2,0);
+ glRotated(0,0,1,0);
+ projector->pos.x=1;
+ projector->pos.y=1;
+ projector->pos.z=1;
+
+ projector->scale=0.07;
+ projector->Materials[0].tex=projectorTex;
+ projector->Materials[1].tex=projectorTex;
+ projector->Draw();
+
+ 
+ glPopMatrix();
+ //seats
+
+ drawCinemaSeats(x,y,z);
 
 
+}
+void drawBox(float x,float y,float z,int image1,int image2,int image3,int image4,int image5,int image6){
+	
 
 
+	glBindTexture(GL_TEXTURE_2D,image3);
+	glBegin(GL_QUADS);
+	    //front
+	    
+		glTexCoord2f(0.0f,1.0f);
+		glVertex3f(-x,y,z);
+		glTexCoord2f(0.0f,0.0f);
+		glVertex3f(-x,-y,z);
+		glTexCoord2f(1.0f,0.0f);
+		glVertex3f(x,-y,z);
+		glTexCoord2f(1.0f,1.0f);
+		glVertex3f(x,y,z);
+		glEnd();
+		//back
+	glBindTexture(GL_TEXTURE_2D,image6);
+	glBegin(GL_QUADS);
+	
+	    glTexCoord2f(0.0f,1.0f);
+		glVertex3f(x,y,-z);
+		glTexCoord2f(0.0f,0.0f);
+		glVertex3f(x,-y,-z);
+		glTexCoord2f(1.0f,0.0f);
+		glVertex3f(-x,-y,-z);
+		glTexCoord2f(1.0f,1.0f);
+		glVertex3f(-x,y,-z);
+		glEnd();
+		//right
+	glBindTexture(GL_TEXTURE_2D,image1);
+	glBegin(GL_QUADS);
+	
+	    glTexCoord2f(0.0f,1.0f);
+		glVertex3f(x,y,z);
+		glTexCoord2f(0.0f,0.0f);
+		glVertex3f(x,-y,z);
+		glTexCoord2f(1.0f,0.0f);
+		glVertex3f(x,-y,-z);
+		glTexCoord2f(1.0f,1.0f);
+		glVertex3f(x,y,-z);
+		glEnd();
+		//left
+	glBindTexture(GL_TEXTURE_2D,image4);
+	glBegin(GL_QUADS);
+	
+	    glTexCoord2f(0.0f,1.0f);
+		glVertex3f(-x,y,-z);
+		glTexCoord2f(0.0f,0.0f);
+		glVertex3f(-x,-y,-z);
+		glTexCoord2f(1.0f,0.0f);
+		glVertex3f(-x,-y,z);
+		glTexCoord2f(1.0f,1.0f);
+		glVertex3f(-x,y,z);
+		glEnd();
+		//top
+	glBindTexture(GL_TEXTURE_2D,image2);
+	glBegin(GL_QUADS);
+	
+	    glTexCoord2f(0.0f,1.0f);
+		glVertex3f(-x,y,-z);
+		glTexCoord2f(0.0f,0.0f);
+		glVertex3f(-x,y,z);
+		glTexCoord2f(1.0f,0.0f);
+		glVertex3f(x,y,z);
+		glTexCoord2f(1.0f,1.0f);
+		glVertex3f(x,y,-z);
+		glEnd();
+		//bottom
+	glBindTexture(GL_TEXTURE_2D,image5);
+	glBegin(GL_QUADS);
+	
+	    glTexCoord2f(0.0f,1.0f);
+		glVertex3f(-x,-y,-z);
+		glTexCoord2f(0.0f,0.0f);
+		glVertex3f(-x,-y,z);
+		glTexCoord2f(1.0f,0.0f);
+		glVertex3f(x,-y,z);
+		glTexCoord2f(1.0f,1.0f);
+		glVertex3f(x,-y,-z);
 
-float angle1 = -0.5, angle2 = 0, angle3 = 0;
-float xd = 0, yd = -50, zd = 200;//mkan
-float looking = 0.05;
-float velocity = 2;//sr3et al mshe
-float cosMovingLength = 50;
-float cosMovingVelocity = 0.1;
+	glEnd();
+	
+	
+	
 
-int mouseX=0,mouseY=0;
-int move =-600;
-bool mover = false;
+};
+
+//batoul's functions ---------------------------------------------------------------------------------------------------------------------------
+
+int comodena,comodena2,closet,closet2,bord,imagclass1,imagclass2,coal,monalisa,food;
 
 bool fan=true;
 double fanrotate=0.0;
 
 
-
-
-
 //------------------------------------------------ furnitures ----------------------------------------------------------------------
+
+
+
 
 void drawTable(double x,double y,double z,double a,double b, double c) {
 	
@@ -1760,7 +1985,61 @@ void drawTable(double x,double y,double z,double a,double b, double c) {
 
 
 	glEnd();
+	glDisable(GL_TEXTURE_2D);
+
 	
+}
+
+
+
+void drawfan(double x,double y,double z){
+	glPushMatrix();
+	glTranslated(x,y,z);
+
+	glPushMatrix();
+	glRotatef(fanrotate,0,1,0);
+		glColor3f(255, 255, 255);
+	glBegin(GL_QUADS); 
+	glVertex3f(6,-1, -1);
+		glVertex3f(6, -1, 1);
+	glVertex3f(-6,-1, 1);
+	glVertex3f(-6,-1,-1);
+	glEnd();
+	glPopMatrix();
+
+	glPushMatrix();
+		glRotatef(fanrotate,0,1,0);
+	glColor3f(255, 255,255);
+	glBegin(GL_QUADS); 
+	glVertex3f(-1,-1, -6);
+		glVertex3f(1, -1, -6);
+	glVertex3f(1,-1,6);
+	glVertex3f(-1,-1, 6);
+	glEnd();
+	glPopMatrix();
+
+	glPushMatrix();
+	glColor3f(255, 255, 255);
+	glBegin(GL_QUADS); 
+	glVertex3f(-0.3,-1, 0);
+		glVertex3f(0.3, -1, 0);
+	glVertex3f(0.3,3, 0);
+	glVertex3f(-0.3,3,0);
+	glEnd();
+	glPopMatrix();
+
+	glPushMatrix();
+	glColor3f(255, 255, 255);
+	glBegin(GL_QUADS); 
+	glVertex3f(0,-1, -0.3);
+		glVertex3f(0, -1, 0.3);
+	glVertex3f(0,3, 0.3);
+	glVertex3f(0,3,-0.3);
+	glEnd();
+	glPopMatrix();
+
+
+	glPopMatrix();
 }
 
 
@@ -1907,6 +2186,7 @@ void drawcoalcupe(double x,double y,double z,double a,double b,double c){
 	
 	glEnd();
 	glPopMatrix();
+	glDisable(GL_TEXTURE_2D);
 	
 }
 
@@ -2049,7 +2329,8 @@ void drawcloset(double x,double y,double z,double a,double b,double c){
 	glEnd();
 	glDisable(GL_TEXTURE_2D);
 	glPopMatrix();
-	
+	glDisable(GL_TEXTURE_2D);
+
 }
 
 
@@ -2171,7 +2452,8 @@ void drawcomodena(double x,double y,double z,double a,double b,double c){
 	
 	glEnd();
 	glPopMatrix();
-	
+		glDisable(GL_TEXTURE_2D);
+
 }
 
 
@@ -2245,7 +2527,7 @@ void drawbed(double x,double y,double z,double a,double b,double c)
     glScalef(0.5, 0.25, 0.05);
     drawCube();
     glPopMatrix();
-    
+    glColor3d(1,1,1);
 }
 
 void drawbedsideTable()
@@ -2280,6 +2562,7 @@ void drawbedsideTable()
       glScalef(0.0001, 0.04, 0.04);
       drawCube();
       glPopMatrix();
+	  glColor3d(1,1,1);
 }
 
 void drawlamp()
@@ -2311,6 +2594,7 @@ void drawlamp()
         glScalef(0.08, 0.09, 0.08);
         drawCube();
         glPopMatrix();
+		glColor3d(1,1,1);
         
 }
 
@@ -2596,7 +2880,7 @@ void drawchair(double x,double y,double z,double a,double b, double c) {
 	//glVertex3f()
 
 	glEnd();
-	
+	glColor3d(1,1,1);
 
 }
 
@@ -2624,6 +2908,8 @@ void drawbord(double x,double y,double z,double a,double b, double c){
 	
 	glEnd();
 	glPopMatrix();
+		glDisable(GL_TEXTURE_2D);
+
 }
 
 
@@ -2651,6 +2937,8 @@ void drawimageclass1(double x,double y,double z,double a,double b, double c){
 	
 	glEnd();
 	glPopMatrix();
+		glDisable(GL_TEXTURE_2D);
+
 }
 
 void drawimageclass2(double x,double y,double z,double a,double b, double c){
@@ -2677,6 +2965,8 @@ void drawimageclass2(double x,double y,double z,double a,double b, double c){
 	
 	glEnd();
 	glPopMatrix();
+		glDisable(GL_TEXTURE_2D);
+
 }
 
 
@@ -2704,6 +2994,8 @@ void drawmonalisa(double x,double y,double z,double a,double b, double c){
 	
 	glEnd();
 	glPopMatrix();
+		glDisable(GL_TEXTURE_2D);
+
 }
 
 
@@ -2733,59 +3025,10 @@ void drawfood(double x,double y,double z,double a,double b, double c){
 	glEnd();
 	
 	glPopMatrix();
+	glDisable(GL_TEXTURE_2D);
+
 }
 
-
-
-void drawfan(double x,double y,double z){
-	glPushMatrix();
-	glTranslated(x,y,z);
-
-	glPushMatrix();
-	glRotatef(fanrotate,0,1,0);
-		glColor3f(255, 255, 255);
-	glBegin(GL_QUADS); 
-	glVertex3f(6,-1, -1);
-		glVertex3f(6, -1, 1);
-	glVertex3f(-6,-1, 1);
-	glVertex3f(-6,-1,-1);
-	glEnd();
-	glPopMatrix();
-
-	glPushMatrix();
-		glRotatef(fanrotate,0,1,0);
-	glColor3f(255, 255,255);
-	glBegin(GL_QUADS); 
-	glVertex3f(-1,-1, -6);
-		glVertex3f(1, -1, -6);
-	glVertex3f(1,-1,6);
-	glVertex3f(-1,-1, 6);
-	glEnd();
-	glPopMatrix();
-
-	glPushMatrix();
-	glColor3f(255, 255, 255);
-	glBegin(GL_QUADS); 
-	glVertex3f(-0.3,-1, 0);
-		glVertex3f(0.3, -1, 0);
-	glVertex3f(0.3,3, 0);
-	glVertex3f(-0.3,3,0);
-	glEnd();
-	glPopMatrix();
-
-	glPushMatrix();
-	glColor3f(255, 255, 255);
-	glBegin(GL_QUADS); 
-	glVertex3f(0,-1, -0.3);
-		glVertex3f(0, -1, 0.3);
-	glVertex3f(0,3, 0.3);
-	glVertex3f(0,3,-0.3);
-	glEnd();
-	glPopMatrix();
-
-
-	glPopMatrix();
-}
 
 
 //------------------------------------------------room object function----------------------------------------------------------------------
@@ -2859,7 +3102,6 @@ drawTable(0,0,0,1,1,1);
 glPopMatrix();
 
 
-
 glPopMatrix();
 
 }
@@ -2904,6 +3146,227 @@ void drivingroom(double x,double y,double z){
 }
 
 
+void drawLib(float x,float y,float z){
+	glPushMatrix();
+	glTranslated(x,y,z);
+
+	//sofa 
+	 sofa->pos.x=-10;
+	 sofa->pos.y=-7;
+	 sofa->pos.z=-7;
+
+	 sofa->scale=0.007;
+	 sofa->Draw();
+
+	 sofa->Materials[0].tex=sofaTex1;
+	 sofa->Materials[1].tex=sofaTex2;
+	 //sofa 2
+	 sofa->pos.x=+14;
+	 sofa->pos.y=-7;
+	 sofa->pos.z=-7;
+
+ 
+	 sofa->Draw();
+
+	 //table
+	 table->pos.x=2;
+	 table->pos.y=-9;
+	 table->pos.z=-7;
+
+	 table->scale=0.005;
+	 table->Draw();
+
+	 table->Materials[0].tex=tableTex;
+
+	 
+
+	 //chair 1
+	 glRotated(-90,0,1,0);
+
+	 chair->pos.x=7;
+	 chair->pos.y=-8;
+	 chair->pos.z=18;
+
+	 chair->scale=0.002;
+	 chair->Draw();
+
+	 chair->Materials[0].tex=chairTex1;
+	 chair->Materials[1].tex=chairTex2;
+	 chair->Materials[2].tex=chairTex2;
+	 
+	 //chair 2
+	 chair->pos.x=7;
+	 chair->pos.y=-8;
+	 chair->pos.z=-18;
+
+	 chair->scale=0.002;
+	 chair->Draw();
+
+	 chair->Materials[0].tex=chairTex1;
+	 chair->Materials[1].tex=chairTex2;
+	 chair->Materials[2].tex=chairTex2;
+	 //book case
+	 bookCase ->pos.x=8;
+	 bookCase ->pos.y=-10;
+	 bookCase ->pos.z=0;
+ 
+	 bookCase ->scale=0.015;
+	 bookCase ->Draw();
+	 bookCase ->Materials[0].tex=bookCaseTex3;
+	 bookCase ->Materials[1].tex=bookCaseTex2;
+	 bookCase ->Materials[2].tex=bookCaseTex2;
+	 bookCase ->Materials[3].tex=bookCaseTex2;
+	 bookCase ->Materials[4].tex=bookCaseTex1;
+	 bookCase ->Materials[5].tex=bookCaseTex1;
+
+
+
+	glPopMatrix();
+}
+
+
+int InitGL(GLvoid)										// All Setup For OpenGL Goes Here
+{
+	glShadeModel(GL_SMOOTH);							// Enable Smooth Shading
+	glClearColor(0.0f, 0.0f, 0.0f, 0.5f);				// Black Background
+	glClearDepth(1.0f);									// Depth Buffer Setup
+	glEnable(GL_DEPTH_TEST);							// Enables Depth Testing
+	glDepthFunc(GL_LEQUAL);								// The Type Of Depth Testing To Do
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	// Really Nice Perspective Calculations
+
+
+	glEnable(GL_TEXTURE_2D);
+	
+
+	snow2dam = LoadTexture("snow_ft.bmp",255);
+	snowWra = LoadTexture("snow_bk.bmp",255);
+	snowYmen = LoadTexture("snow_rt.bmp",255);
+	snowYsar = LoadTexture("snow_lf.bmp",255);
+	snowFo2 = LoadTexture("snow_up.bmp",255);
+	snowT7t = LoadTexture("snow_dn.bmp",255);
+
+	mountain2dam = LoadTexture("mountain-posz.bmp",255);
+	mountainWra = LoadTexture("mountain-negz.bmp",255);
+	mountainYmen = LoadTexture("mointain-negx.bmp",255);
+	mountainYsar = LoadTexture("mountain-posx.bmp",255);
+	mountainFo2 = LoadTexture("mountain-posy.bmp",255);
+	mountainT7t = LoadTexture("mountain-negy.bmp",255);
+
+	tunel1 = LoadTexture("tunnel1.bmp",255);
+	roof = LoadTexture("roof.bmp",255);
+	road2 = LoadTexture("road2.bmp",255);
+	rail = LoadTexture("Rail.bmp",255);
+
+	wall = LoadTexture("Wall.bmp", 255);
+	ground = LoadTexture("iron.bmp", 255);
+	wall2 = LoadTexture("Wall2 (2).bmp", 255);
+	wall3 = LoadTexture("Wall3.bmp", 255);
+	door = LoadTexture("door.bmp", 255);
+	wheel = LoadTexture("wheel.bmp", 255);
+	
+	forest2dam = LoadTexture("forest-posz.bmp",255);
+	forestWra = LoadTexture("forest-negz.bmp",255);
+	forestYmen = LoadTexture("forest-negx.bmp",255);
+	forestYsar = LoadTexture("forest-posx.bmp",255);
+	forestFo2 = LoadTexture("forest-posy.bmp",255);
+	forestT7t = LoadTexture("forest-negy.bmp",255);
+
+	night2dam = LoadTexture("night-posz.bmp",255);
+	nightWra = LoadTexture("night-negz.bmp",255);
+	nightYmen = LoadTexture("night-negx.bmp",255);
+	nightYsar = LoadTexture("night-posx.bmp",255);
+	nightFo2 = LoadTexture("night-posy.bmp",255);
+	nightT7t = LoadTexture("night-negy.bmp",255);
+
+	desert2dam = LoadTexture("desert-posz.bmp",255);
+	desertWra = LoadTexture("desert-negz.bmp",255);
+	desertYmen = LoadTexture("desert-negx.bmp",255);
+	desertYsar = LoadTexture("desert-posx.bmp",255);
+	desertFo2 = LoadTexture("desert-posy.bmp",255);
+	desertT7t = LoadTexture("desert-negy.bmp",255);
+
+	comodena = LoadTexture("comodena.bmp",255);
+	comodena2 = LoadTexture("comodena2.bmp",255);
+	closet = LoadTexture("closet.bmp",255);
+	closet2 = LoadTexture("closet2.bmp",255);
+	bord = LoadTexture("bord.bmp",255);
+	imagclass1= LoadTexture("imegclass1.bmp",255);
+	imagclass2= LoadTexture("imageclass2.bmp",255);
+	coal = LoadTexture("coal.bmp",255);
+	monalisa = LoadTexture("monalisa.bmp",255);
+	food = LoadTexture("food.bmp",255);
+	
+	bench = new Model_3DS();
+	bench->Load("Chair Tandem Bench N210722.3ds");
+	chaitTex.LoadBMP("123.bmp");
+	chaitTex1.LoadBMP("chairTex.bmp");
+
+	house = new Model_3DS();
+	house->Load("House Cyprys N111220.3ds");
+	houseTex1.LoadBMP("houseTex1.bmp");
+	houseTex2.LoadBMP("houseTex2.bmp");
+	houseTex3.LoadBMP("houseTex3.bmp");
+	houseTex4.LoadBMP("houseTex4.bmp");
+	houseTex5.LoadBMP("houseTex5.bmp");
+	houseTex6.LoadBMP("houseTex6.bmp");
+	houseTex7.LoadBMP("houseTex7.bmp");
+
+	projector = new Model_3DS();
+	projector->Load("projector.3DS");
+	projectorTex.LoadBMP("houseTex5.bmp");
+
+	armchair = new Model_3DS();
+	armchair->Load("armchair.3ds");
+	armChairTex1.LoadBMP("arm.bmp");
+	armChairTex2.LoadBMP("armchairS.bmp");
+	armChairTex3.LoadBMP("Steel.bmp");
+	armChairTex3.LoadBMP("armchairW.bmp");
+
+	sofa = new Model_3DS();
+	sofa->Load("Sofa Fresh Futon Edge N071122.3ds");
+	sofaTex1.LoadBMP("Plywood2.bmp");
+	sofaTex2.LoadBMP("Fabric-d.bmp");
+
+	table = new Model_3DS();
+	table->Load("Table Bernhardt Estelle N251022.3ds");
+	tableTex.LoadBMP("Banco_mt.bmp");
+
+	bookCase = new Model_3DS();
+	bookCase->Load("Bookcase.3DS");
+	bookCaseTex1.LoadBMP("os_wood_palladio.bmp");
+	bookCaseTex2.LoadBMP("palladio_wood_5.bmp");
+	bookCaseTex3.LoadBMP("bookcase.bmp");
+
+	chair = new Model_3DS();
+	chair->Load("Chair fotel N251007.3DS");
+	chairTex1.LoadBMP("Banco_mt.bmp");
+	chairTex2.LoadBMP("Plywood2.bmp");
+
+	sofaChair = new Model_3DS();
+	sofaChair->Load("Chair N230210.3DS");
+	sofaChairTex1.LoadBMP("Decoo.bmp");
+	sofaChairTex2.LoadBMP("Plywood2.bmp");
+	sofaChairTex3.LoadBMP("Fabric-d.bmp");
+
+	
+
+	return TRUE;										// Initialization Went OK
+}
+
+
+
+float angle1 = 180, angle2 = 0, angle3 = 0;
+float xd = 0, yd = -75, zd = 40	;//mkan
+float looking = 0.05;
+float velocity = 3;//sr3et al mshe
+float cosMovingLength = 50;
+float cosMovingVelocity = 0.1;
+bool myCamera = true;
+int mouseX=0,mouseY=0;
+int move =250;
+bool direction = true;
+bool mover = true;
+
 bool isClicked=0,isRClicked=0;
 
 void DrawGLScene(GLvoid)									// Here's Where We Do All The Drawing
@@ -2911,10 +3374,12 @@ void DrawGLScene(GLvoid)									// Here's Where We Do All The Drawing
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// Clear Screen And Depth Buffer
 	glLoadIdentity();									// Reset The Current Modelview Matrix
-
+	if(myCamera){
 	gluLookAt(xd, yd, zd, (cos(angle2)*cos(angle1)) + xd, sin(angle2) + yd, (cos(angle2)*sin(angle1)) + zd, 0, 1, 0);
-	//gluLookAt(0, 0, 0, (cos(angle2)*cos(angle1)) + xd, sin(angle2) + yd, (cos(angle2)*sin(angle1)) + zd, 0, 1, 0);
-
+	}
+	if(!myCamera){
+		gluLookAt(xd, yd+60, zd, (cos(angle2)*cos(angle1)) + xd, sin(angle2) + yd+60, (cos(angle2)*sin(angle1)) + zd, 0, 1, 0);
+	}
 	glEnable(GL_TEXTURE_2D);
 	
 
@@ -2923,19 +3388,128 @@ void DrawGLScene(GLvoid)									// Here's Where We Do All The Drawing
 
 	//---------------------------------------------------skybox start-------------------------------------------------------------------
 
-	skyBox thire(0,100,-1600,image5,image2,image1,image4,image3,grass);//sea
-	thire.drawRail(rail);
-	skyBox first(0,100,0,snowYmen,snowYsar,snow2dam,snowWra,snowFo2,snowT7t);
+	skyBox third(0,100,-1600,forestYmen,forestYsar,forest2dam,forestWra,forestFo2,forestT7t,0,0);
+	third.drawRail(rail);
+	
+
+
+
+
+	skyBox first(0,100,0,snowYmen,snowYsar,snow2dam,snowWra,snowFo2,snowT7t,1,0);
 	first.drawRail(rail);
-	skyBox seconde(0,100,-800,mountainYmen,mountainYsar,mountain2dam,mountainWra,mountainFo2,mountainT7t);
+
+
+	//benches
+	glPushMatrix();
+	glRotated(-90,0,1,0);
+	glTranslated(60,-95,-50);
+	bench->pos.x=0;
+	bench->pos.y=0;
+	bench->pos.z=0;
+	bench->scale=0.001;
+	bench->Materials[0].tex=chaitTex1;
+	bench->Materials[1].tex=chaitTex;
+	bench->Draw();
+	glPopMatrix();
+
+	glPushMatrix();
+	glRotated(-90,0,1,0);
+	glTranslated(0,-95,-50);
+	bench->Draw();
+	glPopMatrix();
+
+	glPushMatrix();
+	glRotated(-90,0,1,0);
+	glTranslated(-60,-95,-50);
+	bench->Draw();
+	glPopMatrix();
+
+	glPushMatrix();
+	glRotated(90,0,1,0);
+	glTranslated(-60,-95,-50);
+	bench->Draw();
+	glPopMatrix();
+
+	glPushMatrix();
+	glRotated(90,0,1,0);
+	glTranslated(0,-95,-50);
+	bench->Draw();
+	glPopMatrix();
+
+	glPushMatrix();
+	glRotated(90,0,1,0);
+	glTranslated(+60,-95,-50);
+	bench->Draw();
+	glPopMatrix();
+
+
+	//houses
+	glPushMatrix();
+	glRotated(-90,0,1,0);
+	glTranslated(+120,-70,-120);
+	house->pos.x=0;
+	house->pos.y=0;
+	house->pos.z=0;
+	house->scale=8;
+	house->Materials[0].tex=houseTex1;
+	house->Materials[1].tex=houseTex2;
+	house->Materials[2].tex=houseTex3;
+	house->Materials[3].tex=houseTex4;
+	house->Materials[4].tex=houseTex5;
+	house->Materials[5].tex=houseTex6;
+	house->Materials[6].tex=houseTex7;
+	house->Draw();
+	glPopMatrix();
+
+	glPushMatrix();
+	glRotated(-90,0,1,0);
+	glTranslated(-120,-70,-120);
+	house->Draw();
+	glPopMatrix();
+
+	glPushMatrix();
+	glRotated(90,0,1,0);
+	glTranslated(+120,-70,-120);
+	house->Draw();
+	glPopMatrix();
+
+	glPushMatrix();
+	glRotated(90,0,1,0);
+	glTranslated(-120,-70,-120);
+	house->Draw();
+	glPopMatrix();
+
+
+
+
+	skyBox seconde(0,100,-800,mountainYmen,mountainYsar,mountain2dam,mountainWra,mountainFo2,mountainT7t,0,0);
 	seconde.drawRail(rail);
+
+	skyBox fourth(0,100,-2400,desertYmen,desertYsar,desert2dam,desertWra,desertFo2,desertT7t,0,0);
+	fourth.drawRail(rail);
+
+	skyBox fifth(0,100,-3200,nightYmen,nightYsar,night2dam,nightWra,nightFo2,nightT7t,0,1);
+	fifth.drawRail(rail);
+	
+
+
+
 
 	tunnel firstTunnel(0,-25,-400,40,75,200,tunel1,tunel1,roof,road2);
 	firstTunnel.drawTunnel();
 	firstTunnel.drawRail(rail);
+
 	tunnel secondeTunnel(0,-25,-1200,40,75,200,tunel1,tunel1,roof,road2);
 	secondeTunnel.drawTunnel();
 	secondeTunnel.drawRail(rail);
+
+	tunnel thirdTunnel(0,-25,-2000,40,75,200,tunel1,tunel1,roof,road2);
+	thirdTunnel.drawTunnel();
+	thirdTunnel.drawRail(rail);
+
+	tunnel fourthTunnel(0,-25,-2800,40,75,200,tunel1,tunel1,roof,road2);
+	fourthTunnel.drawTunnel();
+	fourthTunnel.drawRail(rail);
 
 
 	//------------------------------------------------train drow----------------------------------------------------------------------
@@ -2946,48 +3520,89 @@ void DrawGLScene(GLvoid)									// Here's Where We Do All The Drawing
 	
 	glTranslated(move,-38,0);
 
+
 	if(mover) {
-		move++;
+		if(direction){
+			
+			zd-=2;
+		
+			move++;
+		}else{
+			
+			zd+=2;
+		
+			move--;
+		}
+		if(move==250 || move == 1400){
+			direction = !direction;
+		}
+		
+		
 	}
+
 	if(fan) {
 		fanrotate=fanrotate+8;
 	}
 
-	
-	
+
 	//first room
-	//MainRoom(255,0,0,0,0,0,0);
-	//drivingroom(255,0,0);
+	MainRoom(255,0,0,0,0,0,0);
+	drivingroom(255,0,0);
+
 	//last room
-	//MainRoom(-315,0,0,180,0,1,0);
-	//drivingroom(-315,0,0);
-	//DrawEntrance(-140,0,0);
+	MainRoom(-315,0,0,180,0,1,0);
+	drivingroom(255,0,0);
+
+
+	DrawEntrance(-140,0,0);
     //second room
-	//RoomWithWindow(210,0,0);
-	///bedroom(210,0,0);
-	
+	RoomWithWindow(210,0,0);
+	bedroom(210,0,0);
 
 	//third room
-	//RoomWithOneWindow(150,0,0);
-	//classroom(150,0,0);
+	RoomWithWindow(150,0,0);
+	drawLib(150,0,0);
 	//fourth room
-	//(90,0,0);
-	//foodroom(90,0,0);
+	
+	RoomWithOutWindow(90,0,0);
+	CINEMA(90,0,0);
+
 	//fifth room
-	//RoomWithWindow(30,0,0);
+	RoomWithOneWindow(30,0,0);
+	classroom(30,0,0);
+
 	//sixth room
-	//RoomWithWindow(-30,0,0);
+	RoomWithWindow(-30,0,0);
+	foodroom(-30,0,0);
+
 	//seventh room
-	//RoomWithOutWindow(-90,0,0);
+	RoomWithOutWindow(-90,0,0);
+	bedroom(-90,0,0);
+
 	//eighth room
-	//RoomWithWindow(-150,0,0);
+	RoomWithWindow(-150,0,0);
+	drawLib(-150,0,0);
+
 	//nineth room
-	//RoomWithWindow(-210,0,0);
+	RoomWithWindow(-210,0,0);
+	foodroom(-210,0,0);
+
 	//tenth Room
-	//RoomWithWindow(-270,0,0);
+	RoomWithOneWindow(-270,0,0);
+	classroom(210,0,0);
 
 
 	glPopMatrix();
+
+
+
+
+
+	
+
+
+
+
 
 
 	//-------------------------------------------------------keyboard---------------------------------------------------------------
@@ -2998,33 +3613,35 @@ void DrawGLScene(GLvoid)									// Here's Where We Do All The Drawing
 	if (keys['D']) angle1 += looking;  // look at the Right. 
 	if (keys['W']) if (angle2<1.55) angle2 += looking;  //look up,  angle2 is on the axis: x_z and y 
 	if (keys['S']) if (angle2>-1.55) angle2 -= looking;  //look down. 
-	if (keys['E'])if(yd>-90) yd--;  
-	if (keys['Q'])if(yd<size){ yd++;  }
+	
 	if (keys['F']) {
 		mover = !mover;
 	}
-	if (keys['R']) {
+	if(keys['H']){
+		myCamera = !myCamera;
+	}
+		if (keys['R']) {
 		fan = !fan;
 	}
 	if (keys['G']) {
 		opendoor = !opendoor;
 	}
 
-	if (keys[VK_UP]) {  if(xd>-size+10 && xd<size-10){zd += velocity*sin(angle1); xd += velocity*cos(angle1);
-	angle3 += cosMovingVelocity; } } // moving Forward. (changing yd axis to demonstrating the steps effect!) 
-	if (keys[VK_DOWN]) { if(xd>-size+10 && xd<size-10){ zd -= velocity*sin(angle1); xd -= velocity*cos(angle1); 
-	angle3 += cosMovingVelocity; } } // moving Backward. 
-	if (keys[VK_LEFT]) {  if(xd>-size+10 && xd<size-10){zd += velocity*sin(angle1 - 1.57); xd += velocity*cos(angle1 - 1.57);
-	angle3 += cosMovingVelocity; } } //moving to the Left. (moving to Right/Left is the same as moving Forward/Backward but with a different angle. 
-	if (keys[VK_RIGHT]) { if(xd>-size+10 && xd<size-10){ zd -= velocity*sin(angle1 - 1.57);
-	xd -= velocity*cos(angle1 - 1.57); angle3 += cosMovingVelocity; } } //moving to the Right 
-
+	if(myCamera ==1){
+	if (keys[VK_UP]) { zd += velocity*sin(angle1); xd += velocity*cos(angle1);
+					    angle3 += cosMovingVelocity; }  // moving Forward. (changing yd axis to demonstrating the steps effect!) 
+	if (keys[VK_DOWN]) { zd -= velocity*sin(angle1); xd -= velocity*cos(angle1); 
+						  angle3 += cosMovingVelocity; }  // moving Backward. 
+	if (keys[VK_LEFT]) { zd += velocity*sin(angle1 - 1.57); xd += velocity*cos(angle1 - 1.57);
+					  angle3 += cosMovingVelocity; }  //moving to the Left. (moving to Right/Left is the same as moving Forward/Backward but with a different angle. 
+	if (keys[VK_RIGHT]) { zd -= velocity*sin(angle1 - 1.57);
+					 xd -= velocity*cos(angle1 - 1.57); angle3 += cosMovingVelocity; }  //moving to the Right 
+	}
 	
 
 
-
-
-
+	
+	
 
 
 
